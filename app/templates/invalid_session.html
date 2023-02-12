@@ -1,0 +1,8 @@
+<!-- De pagina waarbinnen wordt aangegeven dat de sessie van de gebruiker is verlopen. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block content %}
+    <h1>You are not sessioned to view this page.</h1>
+    <p>If you want to view this study, please contact authorized users to give the rights.</p>
+{% endblock %}

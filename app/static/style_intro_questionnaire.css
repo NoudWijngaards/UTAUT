@@ -1,0 +1,92 @@
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  background-color: rgb(241,241,241);
+}
+
+.questionnaire-title-box {
+  height: auto;
+  margin: auto;
+  width: 80%;
+  text-align: justify;
+}
+
+.title-box {
+  width: auto;
+  height: auto;
+  text-align: center;
+}
+
+.title-header {
+  font-size: 24px;
+  color: rgb(51,51,51);
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 0.15em;
+  display: inline-block;
+  padding: 15px 20px;
+  position: relative;
+}
+
+.title-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  display: block;
+  background: none repeat scroll 0 0 transparent;
+  height: 2px;
+  width: 0;
+  background: rgb(51,51,51);
+  transition: width 0.3s ease 0s, left 0.3s ease 0s;
+}
+
+.title-header:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+button {
+  margin: 10px;
+}
+
+.data-usage-box {
+  position: relative;
+  min-height: 450px;
+  width: 17%;
+  background-color: white;
+  border: 1px solid black;
+  float: right;
+  margin: 10px;
+  padding:3px;
+}
+
+.data-usage-header {
+  font-size: 28px;
+  font-family: 'Times New Roman', serif;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.data-usage-subheader {
+  font-size: 18px;
+  font-family: 'Times New Roman', serif;
+}
+
+.description-box {
+  min-height: 40%;
+  width: 80%;
+  margin-left: 15px;
+  margin-top: 10px;
+  text-align: justify;
+  border-bottom: 1px solid black;
+}
+
+.description {
+  font-size: 18px;
+  margin-left: 15px;
+  margin-right: 15px;
+}

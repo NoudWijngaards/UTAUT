@@ -1,0 +1,131 @@
+body {
+	 background-color: rgb(230,230,230);
+}
+
+.corevariable-infotable {
+  position: relative;
+  max-height: 400px;
+  width: 650px;
+  margin-left: -50px;
+  margin-top: 30px;
+  margin-bottom: 70px;
+}
+
+.corevariable-namebox {
+  height: auto;
+  width: 95%;
+  text-align: center;
+}
+
+.corevariable-name {
+  color: black;
+  font-size: 55px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.corevariable-abbreviationbox {
+  height: auto;
+  width: 95%;
+  text-align: center;
+  margin-top: -13px;
+}
+
+.corevariable-abbreviation {
+  color: black;
+  font-size: 20px;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.corevariable-descriptionbox {
+  height: auto;
+  width: 95%;
+  margin: auto;
+}
+
+.corevariable-description {
+  color: black;
+  font-size: 25px;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.graphics-box {
+  display: inline-block;
+  height: auto;
+  width: auto;
+  margin-left: -30px;
+  margin-right: 40px;
+  margin-bottom: 20px;
+}
+
+.graphic-box {
+  height: auto;
+  width: 300px;
+  background-color: rgb(210,210,210);
+  border: 2px solid black;
+}
+
+.graphic-box:hover {
+  cursor: pointer;
+  background-color: rgb(200,200,200);
+}
+
+.graphic-box:active {
+  background-color: rgb(190,190,190);
+}
+
+.graphic-namebox {
+  height: 50px;
+  width: 100%;
+  text-align: center;
+}
+
+.graphic-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.graphic-graphbox {
+  position: relative;
+  height: 300px;
+  width: auto;
+  padding: 10px;
+}
+
+.full-graphic-background {
+  position   : fixed;
+  top        : 0;
+  left       : 0;
+  width      : 100%;
+  height     : 100%;
+  background : #000;
+  opacity    : 0.6;
+  filter     : alpha(opacity=60);
+  z-index    : 5;
+  display    : none;
+}
+
+.full-graphic-box {
+  position   : fixed;
+  top        : 0;
+  left       : 0;
+  width      : 100%;
+  height     : 100%;
+  z-index    : 9;
+  display    : none;
+}
+
+.full-graphic {
+  position: relative;
+  display: flex;
+  align-items: center; /* vertical centering if flex-direction: row */
+  justify-content: center; /* horizontal centering if flex-direction: row */
+  width    : 75%;
+  height   : 80%;
+  z-index  : 10;
+  display  : none;
+  background-color: rgb(210,210,210);
+  border: 2px solid black;
+}

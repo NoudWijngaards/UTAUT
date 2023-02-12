@@ -1,0 +1,10 @@
+<!-- De pagina waarbinnen aangegeven wordt dat de huidige persoon niet geauthoriseerd is om deze pagina te betreden. -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>You are not authorized to view this page.</h1>
+    <p>If you want to view this study, please contact authorized users to obtain the rights.</p>
+    <button type="button" onclick="window.location.href='{{ url_for('main.index') }}';">
+                Go to Main Menu
+    </button>
+{% endblock %}

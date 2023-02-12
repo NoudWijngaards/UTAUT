@@ -1,0 +1,71 @@
+<!-- De pagina waarbinnen de samenvatting van de vragenlijstresultaten weergegeven wordt. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_summary_results.css') }}">
+    <h1 style="text-align: center;">Summary Results</h1>
+    <!-- De tabel waarin de demografische informatie van alle participanten weergegeven wordt. -->
+    <h2 style="text-align:center;">Demographic results</h2>
+    <div style="overflow-x: auto; overflow-y: auto; height: 30%;">
+      <table>
+        <tr>
+          <th>ID</th>
+          {% for demographic in demographics %}
+            <th>{{ demographic.name }}</th>
+          {% endfor %}
+        </tr>
+        {% for case in cases %}
+          <tr>
+              <td style="font-weight: bold;">{{ case.id }}</td>
+              {% for answer in case.linked_demographic_answers() %}
+                <td>{{ answer.answer }}</td>
+              {% endfor %}
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <!-- De tabel waarin alle vragenresultaten worden weergegeven. -->
+    <h2 style="text-align:center;">Questionnaire results</h2>
+    <div style="overflow-x: auto; overflow-y: auto; height: 30%;">
+      <table>
+        <tr>
+          <th>ID</th>
+          {% for question in questions %}
+            <th>{{ question.question_code }}</th>
+          {% endfor %}
+        </tr>
+        {% for case in cases %}
+          <tr>
+              <td style="font-weight: bold;">{{ case.id }}</td>
+              {% for answer in case.linked_question_answers() %}
+                <td>{{ answer.score }}</td>
+              {% endfor %}
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <!-- De tabel waarin alle vragenresultaten worden weergegeven. -->
+    <h2 style="text-align:center;">Averages and standard deviations</h2>
+    <div style="overflow-x: auto; overflow-y: auto; height: 30%;">
+      <table>
+        <tr>
+          <th>Code</th>
+          <th>Question</th>
+          <th>Average</th>
+          <th>Standard deviation</th>
+        </tr>
+        {% for question in questions %}
+          <tr>
+              <td style="font-weight: bold;">{{ question.question_code }}</td>
+              <td>{{ question.question }}</td>
+              <td>{{ question.return_average_question_answers() }}</td>
+              <td>{{ question.return_standarddeviation_question_answers() }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <button type="button" onclick="window.location.href='{{ url_for('create_study.data_analysis', study_code=study.code) }}';">
+        Go to the data-analysis
+    </button>
+{% endblock %}

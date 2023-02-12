@@ -1,0 +1,37 @@
+<!-- De intro van de vragenlijst. -->
+{% extends "base_visitor.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_intro_questionnaire.css') }}">
+    <!-- Het tonen van de naam van het onderzoek. -->
+    <div class="questionnaire-title-box">
+        <div class="title-box">
+            <h1 class="title-header"> {{ study.name }}</h1>
+        </div>
+    </div>
+    <!-- Het tonen van welke persoonlijke data opgeslagen wordt tijdens het uitvoeren van de vragenlijst. -->
+    <div class="data-usage-box">
+        <h1 class="data-usage-header">Used personal data</h1>
+        <!-- De door de gebruiker zelf ingevoerde data. -->
+        <h2 class="data-usage-subheader">Manually given data:</h2>
+        <ul>
+          {% for demographic in demographics %}
+            <li>{{ demographic.name }}</li>
+          {% endfor %}
+        </ul>
+        <!-- De door het programma automatisch opgeslagen data. -->
+        <h2 class="data-usage-subheader">Automatically saved data:</h2>
+        <ul>
+        </ul>
+    </div>
+    <!-- Het tonen van de beschrijving van het onderzoek. -->
+    <div class="description-box">
+        <p class="description"> {{ study.description }} </p>
+    </div>
+
+    <!-- De knop om aan de vragenlijst te beginnen. -->
+    <button type="button" onclick="window.location.href='{{ url_for('questionnaire.start_questionnaire', study_code=study.code) }}';">
+        Start questionnaire
+    </button>
+{% endblock %}

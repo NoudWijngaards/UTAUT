@@ -1,0 +1,32 @@
+<!-- De pagina waarbinnen een nieuw onderzoek aangemaakt kan worden. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_new_question.css') }}">
+    <h1>Choose a question for {{ corevariable.name }} (or create one)</h1>
+    <!-- De Form waarbinnen een nieuw onderzoek aangemaakt kan worden. -->
+    <table>
+        <tr>
+            <th scope="col">Question</th>
+            <th scope="col">Originally created for</th>
+            <th scope="col">Creator</th>
+        </tr>
+        {% for corevariable in corevariables %}
+            <tr>
+                <th scope="col">{{ corevariable.name }}</th>
+            </tr>
+            {% for question in corevariable.linked_questions() %}
+                <tr>
+                    <th scope="row"><a href="{{ url_for('create_study.add_question', study_code=study.code,
+                    corevariable_id=corevariable.id, question_id=question.id) }}">{{ question.question }}</a></th>
+                    <td>{{ question.return_original_corevariable().name }}</td>
+                    <td>{{ question.return_creator().username }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </table>
+    <button type="button" onclick="window.location.href='{{ url_for('create_study.create_new_question', study_code=study.code, corevariable_id=corevariable.id) }}';">
+        Create new question
+    </button>
+{% endblock %}

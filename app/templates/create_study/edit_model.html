@@ -1,0 +1,77 @@
+<!-- De pagina waarbinnen het onderzoeksmodel aangepast kan worden. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_edit_model.css') }}">
+    <div class="title-box">
+        <h1 class="title-header"> {{ study.name }}</h1>
+    </div>
+    <p>The study needs at least four core variables. Each core variable needs to be used in at least one relation.</p>
+    <!-- De optie om het onderzoek zelf aan te passen. -->
+    <button type="button" onclick="window.location.href='{{ url_for('create_study.edit_study', study_code=study.code) }}';">
+        Edit study
+    </button>
+    <!-- De tabel met alle kernvariabelen. -->
+    <div id="table-corevariables">
+        <h1 class="table-header">Core Variables</h1>
+        <table class="table-class">
+          <tr>
+            <th>Abbreviation</th>
+            <th>Name</th>
+          </tr>
+          {% for corevariable in corevariables %}
+            <tr>
+                <td>
+                    {{ corevariable.abbreviation }}
+                </td>
+                <td>
+                    {{ corevariable.name }}
+                </td>
+                <td>
+                    <button type="button" onclick="window.location.href='{{ url_for('create_study.remove_corevariable',
+                    study_code=study.code, corevariable_id=corevariable.id) }}';">
+                        Delete variable
+                    </button>
+                </td>
+            </tr>
+          {% endfor %}
+        </table>
+    </div>
+
+    <!-- Een div welke de optie bevat om een kernvariabele toe te voegen vanuit een selectiemenu of er handmatig een toe
+     te voegen. -->
+    <div class="popuptext">
+        <button type="button" onclick="window.location.href='{{ url_for('create_study.new_corevariable', study_code=study.code) }}';">
+            Create new core variable
+        </button>
+    </div>
+
+    <!-- De tabel met alle relaties. -->
+    <div id="table-relations">
+        <h1 class="table-header">Relations</h1>
+        <table class="table-class">
+            {% for relation in relations %}
+                <tr>
+                    <td>
+                        {{ relation.return_relation() }}
+                    </td>
+                    <td>
+                        <button type="button" onclick="window.location.href='{{ url_for('create_study.remove_relation',
+                        study_code=study.code, id_relation=relation.id) }}';">
+                            Delete relation
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <button type="button" onclick="window.location.href='{{ url_for('create_study.new_relation', study_code=study.code) }}';">
+        Create new relation
+    </button>
+
+    <button type="button" onclick="window.location.href='{{ url_for('create_study.questionnaire', study_code=study.code) }}';">
+        Go to questionnaire
+    </button>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+<!-- De pagina voor het starten aan de vragenlijst. -->
+{% extends 'base_visitor.html' %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_start_questionnaire.css') }}">
+    <h1>Start of the questionnaire</h1>
+    <!-- De Form met de demografische informatie die ingevuld dient te worden. -->
+    <div class="form-container">
+        <div class="row">
+            <div class="col-md-4">
+                {{ render_form(form) }}
+            </div>
+        </div>
+    </div>
+    <p>* = Required</p>
+
+{% endblock %}

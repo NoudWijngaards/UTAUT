@@ -1,0 +1,23 @@
+<!-- De pagina waarbinnen de gebruiker kan inloggen. -->
+{% extends 'base_logged_out.html' %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_login.css') }}">
+    <h1>Sign In</h1>
+    <!-- De Form waarmee de gebruiker kan inloggen. -->
+    <!-- De Form voor het aanpassen van het profiel. -->
+    <div class="row">
+        <div class="col-md-4">
+            {{ render_form(form) }}
+        </div>
+    </div>
+    <br>
+    <!-- De knop waarmee de gebruiker zich kan registreren. -->
+    <p>New User? <a href="{{ url_for('auth.register') }}">Click to Register!</a></p>
+    <!-- De knop waarmee de gebruiker het wachtwoord kan resetten. -->
+    <p>
+        Forgot Your Password?
+        <a href="{{ url_for('auth.reset_password_request') }}">Click to Reset It</a>
+    </p>
+{% endblock %}

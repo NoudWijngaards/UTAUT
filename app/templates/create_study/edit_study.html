@@ -1,0 +1,34 @@
+<!-- De pagina waarbinnen het onderzoek zelf aangepast kan worden. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_edit_study.css') }}">
+    <h1>Edit Study</h1>
+    <!-- De Form waarmee het onderzoek aangepast kan worden. -->
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.name_of_study.label }}<br>
+            {{ form.name_of_study(size=32) }}<br>
+            {% for error in form.name_of_study.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.description_of_study.label }}<br>
+            {{ form.description_of_study(cols=50, rows=4) }}<br>
+            {% for error in form.description_of_study.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.technology_of_study.label }}<br>
+            {{ form.technology_of_study(size=50) }}<br>
+            {% for error in form.technology_of_study.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}

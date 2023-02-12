@@ -1,0 +1,16 @@
+<!-- De pagina waarbinnen een nieuwe kernvariabele voor het onderzoeksmodel aangemaakt kan worden. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_create_new_corevariable.css') }}">
+    <h1>Create a New Core Variable</h1>
+    <!-- De Form waarbinnen een nieuwe kernvariabele gemaakt kan worden. -->
+    <div class="form-container">
+        <div class="row">
+            <div class="col-md-4">
+                {{ render_form(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,26 @@
+<!-- De pagina waarbinnen aangegeven wordt dat het onderzoek bezig. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_questionnaire.css') }}">
+    <div class="title-box">
+        <h1 class="title-header"> {{ study.name }}</h1>
+    </div>
+
+    <!-- De hoeveelheid al voltooide vragenlijsten door participanten. -->
+    <p>Completed cases/questionnaires: {{ questionnaire.total_completed_cases() }}</p>
+
+    <!-- De link naar de vragenlijst. -->
+    <p>The link to the page: {{ link }}</p>
+
+    <!-- De knop om naar de vragenlijst te gaan. -->
+    <button type="button" onclick="window.location.href='{{ url_for('questionnaire.intro_questionnaire', study_code=study.code) }}';">
+        Go to the questionnaire
+    </button>
+
+    <!-- De optie om het onderzoek te voltooien. -->
+    <button type="button" onclick="window.location.href='{{ url_for('create_study.end_study', study_code=study.code) }}';">
+        End study (completion of sending out forms and start of data-analysis)
+    </button>
+{% endblock %}

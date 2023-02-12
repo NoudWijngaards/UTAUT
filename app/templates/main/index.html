@@ -1,0 +1,14 @@
+<!-- Het hoofdmenu -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_index.css') }}">
+    <!-- Het menu met alle opties. -->
+    <div class="content-container">
+        <div class="vertical-menu">
+          <a href="{{ url_for('create_study.new_study') }}">Create New Study</a>
+          <a href="{{ url_for('current_studies.my_studies') }}">View Your Studies</a>
+        </div>
+    </div>
+{% endblock %}

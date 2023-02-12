@@ -1,0 +1,875 @@
+<!-- De pagina waarbinnen de data-analyse van de kernvariabele getoond wordt. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_corevariable_analysis.css') }}">
+  <!-- Informatie over de kernvariabele (de naam, afkorting en beschrijving). -->
+  <div class="corevariable-infotable">
+    <div class="corevariable-namebox">
+      <p class="corevariable-name">{{ corevariable.name }}</p>
+    </div>
+    <div class="corevariable-abbreviationbox">
+      <p class="corevariable-abbreviation">({{ corevariable.abbreviation }})</p>
+    </div>
+    <div class="corevariable-descriptionbox">
+      <p class="corevariable-description">{{ corevariable.description }}</p>
+    </div>
+  </div>
+  <!-- De div's waarbinnen de verschillende kleinschalige grafieken worden getoond. "Button" wordt toegevoegd als de
+   mogelijkheid gegeven wordt bij het klikken op de div om de fullscreengrafiek weer te geven. De div is onderverdeeld
+   in een "namebox" waarbinnen de naam van de specifieke criterium wordt gegeven (graphic-namebox) en een "graphbox"
+   waarbinnen de chart/grafiek zit (graphic-graphbox).-->
+  <div class="graphics-box" id="button-ave">
+    <div class="graphic-box">
+      <div class="graphic-namebox">
+        <p class="graphic-name">Average Variance Extracted</p>
+      </div>
+      <div class="graphic-graphbox">
+        <canvas id="chart_ave"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="graphics-box" id="button-ca">
+    <div class="graphic-box">
+      <div class="graphic-namebox">
+        <p class="graphic-name">Cronbach's Alpha</p>
+      </div>
+      <div class="graphic-graphbox">
+        <canvas id="chart_ca"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="graphics-box" id="button-cr">
+    <div class="graphic-box">
+      <div class="graphic-namebox">
+        <p class="graphic-name">Composite Reliability</p>
+      </div>
+      <div class="graphic-graphbox">
+        <canvas id="chart_cr"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="graphics-box" id="button-vif">
+    <div class="graphic-box">
+      <div class="graphic-namebox">
+        <p class="graphic-name">VIF</p>
+      </div>
+      <div class="graphic-graphbox">
+        <canvas id="chart_vif"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="graphics-box" id="button-loadings">
+    <div class="graphic-box">
+      <div class="graphic-namebox">
+        <p class="graphic-name">Loadings</p>
+      </div>
+      <div class="graphic-graphbox">
+        <canvas id="chart_loadings"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="graphics-box" id="button-htmt">
+    <div class="graphic-box">
+      <div class="graphic-namebox">
+        <p class="graphic-name">Heterotrait-Monotrait Ratio</p>
+      </div>
+      <div class="graphic-graphbox">
+        <canvas id="chart_htmt"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- De div's van de fullscreengrafieken van de kwaliteitscriteria. De chart/grafiek staat binnen de div
+  "full-graphic". De button binnen de div "overlay-button" is een button welke de optie geeft om de fullscreengrafiek
+  weg te halen van het scherm.-->
+  <div class="full-graphic-background" id="overlay-back-ave"></div>
+  <div class="full-graphic-box" id="overlay-ave">
+    <button style="display: none;" id="overlay-button-ave">Go back</button>
+    <div class="full-graphic" id="overlay-graphic-ave">
+      <canvas id="chart_ave_all"></canvas>
+    </div>
+  </div>
+
+  <div class="full-graphic-background" id="overlay-back-ca"></div>
+  <div class="full-graphic-box" id="overlay-ca">
+    <button style="display: none;" id="overlay-button-ca">Go back</button>
+    <div class="full-graphic" id="overlay-graphic-ca">
+      <canvas id="chart_ca_all"></canvas>
+    </div>
+  </div>
+
+  <div class="full-graphic-background" id="overlay-back-cr"></div>
+  <div class="full-graphic-box" id="overlay-cr">
+    <button style="display: none;" id="overlay-button-cr">Go back</button>
+    <div class="full-graphic" id="overlay-graphic-cr">
+      <canvas id="chart_cr_all"></canvas>
+    </div>
+  </div>
+
+  <div class="full-graphic-background" id="overlay-back-htmt"></div>
+  <div class="full-graphic-box" id="overlay-htmt">
+    <button style="display: none;" id="overlay-button-htmt">Go back</button>
+    <div class="full-graphic" id="overlay-graphic-htmt">
+      <canvas id="chart_htmt_all"></canvas>
+    </div>
+  </div>
+
+  <script>
+      /* De configuratie van Chart.js en bepaalde instellingen. */
+      const DISPLAY = true;
+      const BORDER = true;
+      const CHART_AREA = true;
+      const TICKS = true;
+
+      /* De kleuren welke gebruikt worden voor de staven in de staafgrafieken. */
+      var chartColors = {
+            red: 'rgb(255, 99, 132)',
+            green: 'rgb(75, 210, 70)',
+            yellow: 'rgb(255, 207, 64)',
+            darkred: 'rgb(212, 0, 0)',
+            darkgreen: 'rgb(0, 212, 0)'
+          };
+
+      /* De AVE-fullscreengrafiek */
+
+          /* JQuery-functie om de fullscreengrafiek te openen bij het klikken op de kleinere AVE-grafiek. */
+          $('#button-ave').on('click', function () {
+              $('#overlay-ave, #overlay-back-ave, #overlay-graphic-ave, #overlay-button-ave').fadeIn(500);
+          });
+
+          /* JQuery-functie om de fullscreengrafiek te sluiten bij het klikken op de "Go Back"-knop. */
+          $('#overlay-button-ave').on('click', function () {
+              $('#overlay-ave, #overlay-back-ave, #overlay-graphic-ave, #overlay-button-ave').fadeOut(500);
+          });
+
+          /* De labels binnen de grafiek (de namen welke horen bij de staven). */
+          var labels_ave_all = [
+              {% for corevariable in corevariable_js_all %}
+                '{{ corevariable.name }}',
+              {% endfor %}
+          ];
+
+          /* Dataconfiguratie binnen de grafiek, waaronder de data die hoort bij de staven "data", de kleuren die
+           nu worden ingesteld (backgroundColor) en gelijk door de functie hieronder worden aangepast op basis van de
+           relevante waarde en om wat voor waarde het gaat bij het hoveren op de staven. */
+          var data_ave_all = {
+              labels: labels_ave_all,
+              datasets: [{
+                label: 'Average Variance Extracted',
+                backgroundColor: [
+                  {% for corevariable in range(length_corevariables) %}
+                    chartColors.green,
+                  {% endfor %}
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for ave in corevariable_ave_js_all %} {{ ave }}, {% endfor %}],
+              }]
+          };
+
+          /* Aan de hand van de grenswaarde (in dit geval 0.50) de kleur van de staven aanpassen. Voor iedere waarde
+           wordt gekeken of de waarde onder 0.50 ligt (in dit geval de staaf rood maken), en daarna of het om de staaf
+           gaat welke hoort bij de kernvariabele zelf (welke gehighlighted wordt met geel). */
+          var colorChangeValue = 0.50;
+          var dataset = data_ave_all.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] < colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+
+            if (labels_ave_all[i] == '{{ corevariable.name }}') {
+              dataset.backgroundColor[i] = chartColors.yellow;
+            }
+          };
+
+          /* De configuratie van de grafiek. De type geeft het soort grafiek aan, de data wordt geconfigureerd en de
+           opties stellen enkele onderdelen vast binnen de grafiek. De title geeft een titel weer bovenaan de grafiek.
+           "legend" is de legenda welke in dit geval niet weergegeven wordt. Voor de x- en y-as wordt bepaald dat de
+           x-as een specifieke barPercentage heeft (de bepaalde breedte van de staaf) en dat de y-as begint bij 0,
+           dat de y-as ook eindigt bij 1 en dat bij de grenswaarde van 0,5 een groene lijn getoond wordt om deze waarde
+           aan te tonen. */
+          const config_ave_all = {
+              type: 'bar',
+              data: data_ave_all,
+              options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Average Variance Extracted'
+                    },
+                    legend: {
+                        display: false,
+                    }
+                },
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: {
+                      color: function(context) {
+                        if (context.tick.value == 0.5) {
+                          return '#009900';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          /* De uiteindelijk configuratie van de grafiek. "chart_ave_all" is terug te vinden in de HTML-code. */
+          const chart_ave_all = new Chart(
+            document.getElementById('chart_ave_all'),
+            config_ave_all
+          );
+
+
+      /* De Cronbach's Alpha-fullscreengrafiek */
+          $('#button-ca').on('click', function () {
+              $('#overlay-ca, #overlay-back-ca, #overlay-graphic-ca, #overlay-button-ca').fadeIn(500);
+          });
+
+          $('#overlay-button-ca').on('click', function () {
+              $('#overlay-ca, #overlay-back-ca, #overlay-graphic-ca, #overlay-button-ca').fadeOut(500);
+          });
+
+          var labels_ca_all = [
+              {% for corevariable in corevariable_js_all %}
+                '{{ corevariable.name }}',
+              {% endfor %}
+          ];
+
+          var data_ca_all = {
+              labels: labels_ca_all,
+              datasets: [{
+                label: 'Cronbachs Alpha',
+                backgroundColor: [
+                  {% for corevariable in range(length_corevariables) %}
+                    chartColors.green,
+                  {% endfor %}
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for ave in corevariable_ca_js_all %} {{ ave }}, {% endfor %}],
+              }]
+          };
+
+          var colorChangeValue = 0.70;
+          var dataset = data_ca_all.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] < colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+
+            if (labels_ca_all[i] == '{{ corevariable.name }}') {
+              dataset.backgroundColor[i] = chartColors.yellow;
+            }
+          };
+
+          const config_ca_all = {
+              type: 'bar',
+              data: data_ca_all,
+              options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Cronbachs Alpha'
+                    },
+                    legend: {
+                        display: false,
+                    }
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: {
+                      drawBorder: false,
+                      color: function(context) {
+                        if (context.tick.value == 0.7) {
+                          return '#009900';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          const chart_ca_all = new Chart(
+            document.getElementById('chart_ca_all'),
+            config_ca_all
+          );
+
+
+      /* De Composite Reliability-fullscreengrafiek */
+          $('#button-cr').on('click', function () {
+              $('#overlay-cr, #overlay-back-cr, #overlay-graphic-cr, #overlay-button-cr').fadeIn(500);
+          });
+
+          $('#overlay-button-cr').on('click', function () {
+              $('#overlay-cr, #overlay-back-cr, #overlay-graphic-cr, #overlay-button-cr').fadeOut(500);
+          });
+
+          var labels_cr_all = [
+              {% for corevariable in corevariable_js_all %}
+                '{{ corevariable.name }}',
+              {% endfor %}
+          ];
+
+          var data_cr_all = {
+              labels: labels_cr_all,
+              datasets: [{
+                label: 'Composite Reliability',
+                backgroundColor: [
+                  {% for corevariable in range(length_corevariables) %}
+                    chartColors.green,
+                  {% endfor %}
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for ave in corevariable_cr_js_all %} {{ ave }}, {% endfor %}],
+              }]
+          };
+
+          var colorChangeValue = 0.70;
+          var dataset = data_cr_all.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] < colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+
+            if (labels_cr_all[i] == '{{ corevariable.name }}') {
+              dataset.backgroundColor[i] = chartColors.yellow;
+            }
+          };
+
+          const config_cr_all = {
+              type: 'bar',
+              data: data_cr_all,
+              options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Composite Reliability'
+                    },
+                    legend: {
+                        display: false,
+                    }
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: {
+                      drawBorder: false,
+                      color: function(context) {
+                        if (context.tick.value == 0.7) {
+                          return '#009900';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          const chart_cr_all = new Chart(
+            document.getElementById('chart_cr_all'),
+            config_cr_all
+          );
+
+
+      /* De Heterotrait-Monotrait Ratio-fullscreengrafiek */
+          $('#button-htmt').on('click', function () {
+              $('#overlay-htmt, #overlay-back-htmt, #overlay-graphic-htmt, #overlay-button-htmt').fadeIn(500);
+          });
+
+          $('#overlay-button-htmt').on('click', function () {
+              $('#overlay-htmt, #overlay-back-htmt, #overlay-graphic-htmt, #overlay-button-htmt').fadeOut(500);
+          });
+
+          var labels_htmt_all = [
+              {% for corevariable in corevariables_htmt %}
+                '{{ corevariable.name }}',
+              {% endfor %}
+          ];
+
+          var data_htmt_all = {
+              labels: labels_htmt_all,
+              datasets: [{
+                label: 'HTMT-ratio',
+                backgroundColor: [
+                  {% for corevariable in range(length_corevariables_htmt) %}
+                    chartColors.green,
+                  {% endfor %}
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for htmt in corevariable_htmt_js_all %} {{ htmt }}, {% endfor %}],
+              }]
+          };
+
+          var colorChangeValue = 0.85;
+          var dataset = data_htmt_all.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] >= colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+          };
+
+          const config_htmt_all = {
+              type: 'bar',
+              data: data_htmt_all,
+              options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Heterotrait-Monotrait Ratio'
+                    },
+                    legend: {
+                        display: false,
+                    }
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    grid: {
+                      drawBorder: false,
+                      color: function(context) {
+                        if (context.tick.value == 0.85) {
+                          return '#FFFFFF';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          const chart_htmt_all = new Chart(
+            document.getElementById('chart_htmt_all'),
+            config_htmt_all
+          );
+
+
+      /* De AVE-kleinschalige grafiek */
+          var labels_ave = [
+              {% for corevariable in corevariable_names_js %}
+                '{{ corevariable.abbreviation }}',
+              {% endfor %}
+          ];
+          var data_ave = {
+              labels: labels_ave,
+              datasets: [{
+                label: 'AVE',
+                backgroundColor: [
+                  chartColors.green,
+                  chartColors.green,
+                  chartColors.green
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for ave in corevariable_ave_js %} {{ ave }}, {% endfor %}],
+              }]
+          };
+
+          var colorChangeValue = 0.50;
+          var dataset = data_ave.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] < colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+
+            if (labels_ave[i] == '{{ corevariable.abbreviation }}') {
+              dataset.backgroundColor[i] = chartColors.yellow;
+            }
+          };
+
+          const config_ave = {
+              type: 'bar',
+              data: data_ave,
+              options: {
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: {
+                      drawBorder: false,
+                      color: function(context) {
+                        if (context.tick.value == 0.5) {
+                          return '#009900';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          const chart_ave = new Chart(
+            document.getElementById('chart_ave'),
+            config_ave
+          );
+
+
+      /* De Cronbach's Alpha-kleinschalige grafiek */
+          const labels_ca = [
+              {% for corevariable in corevariable_names_js %}
+                '{{ corevariable.abbreviation }}',
+              {% endfor %}
+          ];
+
+          var data_ca = {
+              labels: labels_ca,
+              datasets: [{
+                label: 'Cronbachs Alpha',
+                backgroundColor: [
+                  chartColors.green,
+                  chartColors.green,
+                  chartColors.green
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for ca in corevariable_ca_js %} {{ ca }}, {% endfor %}],
+              }]
+          };
+
+          var colorChangeValue = 0.70; //set this to whatever is the deciding color change value
+          var dataset = data_ca.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] < colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+
+            if (labels_ave[i] == '{{ corevariable.abbreviation }}') {
+              dataset.backgroundColor[i] = chartColors.yellow;
+            }
+          };
+
+          const config_ca = {
+              type: 'bar',
+              data: data_ca,
+              options: {
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: {
+                      drawBorder: false,
+                      color: function(context) {
+                        if (context.tick.value == 0.7) {
+                          return '#009900';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          const chart_ca = new Chart(
+            document.getElementById('chart_ca'),
+            config_ca
+          );
+
+
+      /* De Composite Reliability-kleinschalige grafiek */
+          const labels_cr = [
+              {% for corevariable in corevariable_names_js %}
+                '{{ corevariable.abbreviation }}',
+              {% endfor %}
+          ];
+          var data_cr = {
+              labels: labels_cr,
+              datasets: [{
+                label: 'Composite Reliability',
+                backgroundColor: [
+                  chartColors.green,
+                  chartColors.green,
+                  chartColors.green
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for cr in corevariable_cr_js %} {{ cr }}, {% endfor %}]
+              }]
+          };
+
+          var colorChangeValue = 0.70; //set this to whatever is the deciding color change value
+          var dataset = data_cr.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] < colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+
+            if (labels_ave[i] == '{{ corevariable.abbreviation }}') {
+              dataset.backgroundColor[i] = chartColors.yellow;
+            }
+          };
+
+          const config_cr = {
+              type: 'bar',
+              data: data_cr,
+              options: {
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: {
+                      drawBorder: false,
+                      color: function(context) {
+                        if (context.tick.value == 0.7) {
+                          return '#009900';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          const chart_cr = new Chart(
+            document.getElementById('chart_cr'),
+            config_cr
+          );
+
+
+      /* De VIF (Variance Inflation Factor)-kleinschalige grafiek */
+          const labels_vif = [
+              {% for question in questions_of_questiongroup %}
+                '{{ question.question_code }}',
+              {% endfor %}
+          ];
+          var data_vif = {
+              labels: labels_vif,
+              datasets: [{
+                label: 'Variance Inflation Factor',
+                backgroundColor: [
+                  {% for i in range(length_questionlist) %}
+                    chartColors.green,
+                  {% endfor %}
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for vif in corevariable_vif_js %} {{ vif }}, {% endfor %}]
+              }]
+          };
+
+          var colorChangeValue = 5; //set this to whatever is the deciding color change value
+          var dataset = data_vif.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] > colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+          };
+
+          const config_vif = {
+              type: 'bar',
+              data: data_vif,
+              options: {
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    beginAtZero: true,
+                    max: 10,
+                    grid: {
+                      drawBorder: false,
+                      color: function(context) {
+                        if (context.tick.value == 5) {
+                          return 'rgb(199, 13, 0)';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          const chart_vif = new Chart(
+            document.getElementById('chart_vif'),
+            config_vif
+          );
+
+
+      /* De Ladingen-kleinschalige grafiek */
+          const labels_loadings = [
+              {% for question in questions_of_questiongroup %}
+                '{{ question.question_code }}',
+              {% endfor %}
+          ];
+          var data_loadings = {
+              labels: labels_loadings,
+              datasets: [{
+                label: 'Loading',
+                backgroundColor: [
+                  {% for i in range(length_questionlist) %}
+                    chartColors.green,
+                  {% endfor %}
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for loading in loadings_list %} {{ loading }}, {% endfor %}]
+              }]
+          };
+
+          var colorChangeValue = 0.7; //set this to whatever is the deciding color change value
+          var dataset = data_loadings.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] < colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+          };
+
+          const config_loadings = {
+              type: 'bar',
+              data: data_loadings,
+              options: {
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: {
+                      drawBorder: false,
+                      color: function(context) {
+                        if (context.tick.value == 0.7) {
+                          return '#009900';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          const chart_loadings = new Chart(
+            document.getElementById('chart_loadings'),
+            config_loadings
+          );
+
+
+      /* De Heterotrait Monotrait Ratio-kleinschalige grafiek */
+          const labels_htmt = [
+              {% for corevariable in corevariable_names_htmt_js %}
+                '{{ corevariable.abbreviation }}',
+              {% endfor %}
+          ];
+          var data_htmt = {
+              labels: labels_htmt,
+              datasets: [{
+                label: 'HTMT-ratio',
+                backgroundColor: [
+                  chartColors.green,
+                  chartColors.green,
+                  chartColors.green
+                ],
+                borderColor: 'rgb(255, 99, 132)',
+                data: [{% for htmt in corevariable_htmt_js %} {{ htmt }}, {% endfor %}]
+              }]
+          };
+
+          var colorChangeValue = 0.85; //set this to whatever is the deciding color change value
+          var dataset = data_htmt.datasets[0];
+          for (var i = 0; i < dataset.data.length; i++) {
+            if (dataset.data[i] >= colorChangeValue) {
+              dataset.backgroundColor[i] = chartColors.red;
+            }
+          };
+
+          const config_htmt = {
+              type: 'bar',
+              data: data_htmt,
+              options: {
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                      barPercentage: 0.4
+                  },
+                  y: {
+                    grid: {
+                      drawBorder: false,
+                      color: function(context) {
+                        if (context.tick.value == 0.85) {
+                          return 'rgb(199, 13, 0)';
+                        }
+                        return '#C2C2C2';
+                      },
+                    },
+                  }
+                }
+              },
+          };
+
+          const chart_htmt = new Chart(
+            document.getElementById('chart_htmt'),
+            config_htmt
+          );
+
+  </script>
+
+{% endblock %}
+

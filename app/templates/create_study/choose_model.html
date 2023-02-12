@@ -1,0 +1,40 @@
+<!-- De pagina waarbinnen een nieuw onderzoek aangemaakt kan worden. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_choose_model.css') }}">
+    <h1>Choose a model (or create one)</h1>
+    <p>If you decide to use a previously used model, you cannot change this model for the duration of the study.</p>
+    <!-- De Form waarbinnen een nieuw onderzoek aangemaakt kan worden. -->
+    {% if amount_of_models > 0 %}
+        <table>
+            <tr>
+                <th scope="col">Study</th>
+                <th scope="col">Core variables</th>
+                <th scope="col">Relations</th>
+            </tr>
+            {% for model in models %}
+                <tr>
+                    <th scope="row"><a href="{{ url_for('create_study.add_model', study_code=study.code, model_id=model.id) }}">
+                        {{ model.name }}</a></th>
+                    <td>
+                        {% for corevariable in model.linked_corevariables %}
+                            {{ corevariable.name }};<br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for relation in model.linked_relations() %}
+                        {{ relation }};<br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>You have not created any models yet. Please create one to continue with setting up the study.</p>
+    {% endif %}
+    <button type="button" onclick="window.location.href='{{ url_for('create_study.create_new_model', study_code=study.code) }}';">
+        Create new model
+    </button>
+{% endblock %}

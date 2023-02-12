@@ -1,0 +1,21 @@
+<!-- Een gedeelte van de vragenlijst voor de participant om in te vullen. -->
+{% extends 'base_visitor.html' %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_questionnaire_part.css') }}">
+    <!-- De naam van de relevante kernvariabele. -->
+    <h1>{{ part.title }}</h1>
+    <!-- De Form om deze vragengroep in te vullen. -->
+    <div class="form-container">
+        <div class="row">
+            <div class="col-md-4">
+                {{ render_form(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

@@ -1,0 +1,16 @@
+<!-- De pagina waarbinnen een nieuwe vraag voor de vragenlijst gemaakt kan worden. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_questionnaire.css') }}">
+    <h1 style="color: rgb(51,51,51); font-weight: bold;">New Demographic</h1>
+    <!-- De Form waarbinnen een nieuwe vraag gemaakt kan worden. -->
+    <div class="form-container">
+        <div class="row">
+            <div class="col-md-4">
+                {{ render_form(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

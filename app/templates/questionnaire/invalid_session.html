@@ -1,0 +1,8 @@
+<!-- De pagina waarbinnen wordt aangegeven dat de sessie van de gebruiker is verlopen. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block content %}
+    <h1>You are not sessioned to view this page.</h1>
+    <p>Start a new session to fill in the form.</p>
+{% endblock %}

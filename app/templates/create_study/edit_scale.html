@@ -1,0 +1,20 @@
+<!-- De pagina waarbinnen het onderzoek zelf aangepast kan worden. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_edit_question.css') }}">
+    <h1>Edit the question</h1>
+    <!-- De Form waarmee het onderzoek aangepast kan worden. -->
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.scale_questionnaire.label }}<br>
+            {{ form.scale_questionnaire(size=16) }}<br>
+            {% for error in form.scale_questionnaire.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}

@@ -1,0 +1,64 @@
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  background-color: rgb(241,241,241);
+}
+
+.table-corevariable {
+  position: relative;
+  width: 1000px;
+  height: auto;
+  background-color: #f1f1f1;
+  border: 2px solid black;
+}
+
+.table-header {
+  margin-top: 7px;
+  margin-bottom: 7px;
+  font-family: Georgia, serif;
+}
+
+.table-class {
+  width: 95%;
+  margin: 0 auto;
+}
+
+button {
+  margin: 10px;
+}
+
+.title-box {
+  width: auto;
+  height: auto;
+  text-align: center;
+}
+
+.title-header {
+  color: rgb(51,51,51);
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 0.15em;
+  display: inline-block;
+  padding: 15px 20px;
+  position: relative;
+}
+
+.title-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  display: block;
+  background: none repeat scroll 0 0 transparent;
+  height: 2px;
+  width: 0;
+  background: rgb(51,51,51);
+  transition: width 0.3s ease 0s, left 0.3s ease 0s;
+}
+
+.title-header:hover::after {
+  width: 100%;
+  left: 0;
+}

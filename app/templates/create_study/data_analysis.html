@@ -1,0 +1,135 @@
+<!-- De pagina waarbinnen de samenvatting van de vragenlijstresultaten weergegeven wordt. -->
+{% extends "base.html" %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+
+{% block app_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_data_analysis.css') }}">
+    <h1 style="text-align: center;">Data-analysis</h1>
+    <button class="tablink" onclick="openPage('ConstructValidity', this)">Construct Validity</button>
+    <button class="tablink" onclick="openPage('DiscriminantValidity', this)">Discriminant Validity</button>
+    <button class="tablink" onclick="openPage('MultiCollinearity', this)">Multi Collinearity</button>
+    <button class="tablink" onclick="openPage('RFsquare', this)">R- and F-square</button>
+
+    <div id="ConstructValidity" class="tabcontent">
+      <h3>Construct Validity</h3>
+      <div style="overflow-x: auto; overflow-y: auto; max-height: 80%;">
+          <table>
+            <tr>
+              <th>Core Variable</th>
+              <th>Average Variance Extracted</th>
+              <th>Cronbach's Alpha</th>
+              <th>Composite Reliability</th>
+            </tr>
+            {% for questiongroup in questiongroups %}
+              <tr>
+                  <td style="font-weight: bold;"><a href="{{ url_for('create_study.corevariable_analysis',
+                  study_code=study.code, questiongroup_id=questiongroup.id) }}">
+                        {{ questiongroup.return_corevariable_name() }}</a></td>
+                  {% set ave = questiongroup.return_ave(model, df, config, scheme) %}
+                  {% if ave < 0.5 %}
+                    <td style="color: red;">{{ ave }}</td>
+                  {% else %}
+                    <td style="color: green;">{{ ave }}</td>
+                  {% endif %}
+                  {% set ca = questiongroup.return_cronbachs_alpha(model, df) %}
+                  {% if ca < 0.7 %}
+                    <td style="color: red;">{{ ca }}</td>
+                  {% else %}
+                    <td style="color: green;">{{ ca }}</td>
+                  {% endif %}
+                  {% set cr = questiongroup.return_composite_reliability(model, df, config, scheme) %}
+                  {% if cr < 0.7 %}
+                    <td style="color: red;">{{ cr }}</td>
+                  {% else %}
+                    <td style="color: green;">{{ cr }}</td>
+                  {% endif %}
+              </tr>
+            {% endfor %}
+          </table>
+      </div>
+      <h3>Loadings items</h3>
+      <div style="overflow-x: auto; overflow-y: auto; height: 80%;">
+          <table>
+            <tr>
+              <th>Item</th>
+              <th>Loading</th>
+            </tr>
+            {% for questiongroup in questiongroups %}
+              {% for question in questiongroup.linked_questions() %}
+                <tr>
+                    <td style="font-weight: bold;">{{ question.question_code }}</td>
+                    {% set loading = question.return_loading(loadings_dct) %}
+                    {% if loading < 0.5 %}
+                        <td style="color: red;">{{ loading }}</td>
+                    {% else %}
+                        <td style="color: green;">{{ loading }}</td>
+                    {% endif %}
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </table>
+      </div>
+    </div>
+
+    <div id="DiscriminantValidity" class="tabcontent">
+      <h3>Heterotrait-Monotrait Ratio</h3>
+      <div style="overflow-x: auto; overflow-y: auto; height: 80%;">
+          <table>
+            <tr>
+              <th></th>
+              {% for corevariable in corevariables %}
+                <th>{{ corevariable.abbreviation }}</th>
+              {% endfor %}
+            </tr>
+            {% set dictionary = data_htmt %}
+            {% for corevariable in dictionary %}
+              <tr>
+                  <th>{{ corevariable }}</th>
+                  {% for i in range(amount_of_variables) %}
+                    {% set value = dictionary[corevariable][i] | float() %}
+                    {% if value != 0 %}
+                        {% if value < 0.85 %}
+                            <td style="color: green;">{{ value }}</td>
+                        {% else %}
+                            <td style="color: red;">{{ value }}</td>
+                        {% endif %}
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                  {% endfor %}
+              </tr>
+            {% endfor %}
+          </table>
+      </div>
+    </div>
+
+    <div id="MultiCollinearity" class="tabcontent">
+      <h3>Outer VIF-values</h3>
+      <div style="overflow-x: auto; overflow-y: auto; height: 80%;">
+          <table>
+            <tr>
+              <th>Item</th>
+              <th>Loading</th>
+            </tr>
+            {% for questiongroup in questiongroups %}
+              {% for question in questiongroup.linked_questions() %}
+                <tr>
+                    <td style="font-weight: bold;">{{ question.question_code }}</td>
+                    {% set vif = question.return_vif(outer_vif_dct) %}
+                    {% if vif >= 10 %}
+                        <td style="color: red;">{{ vif }}</td>
+                    {% else %}
+                        <td style="color: green;">{{ vif }}</td>
+                    {% endif %}
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </table>
+      </div>
+    </div>
+
+    <div id="RFsquare" class="tabcontent">
+      <h3>R- and F-square</h3>
+      <p>To be realized</p>
+    </div>
+{% endblock %}
